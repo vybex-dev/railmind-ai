@@ -16,7 +16,7 @@
 
 > **Four AI modules. One unified platform. Built to make Indian Railways safer, smarter, and more efficient.**
 
-[🚀 Live Demo](https://railmind-ai.netlify.app/) · [📦 Main Repo](https://github.com/vybex-dev/railmind-ai) · [📹 Demo Video](https://www.youtube.com/watch?v=Xybc22aj_NQ) · [📊 Presentation](https://github.com/vybex-dev/railmind-ai/blob/main/RailMind_AI_Hackathon.pdf)
+[🚀 Live Demo](https://railmind-ai.netlify.app/) · [📦 Main Repo](https://github.com/vybex-dev/railmind-ai) · [📹 Demo Video](https://www.youtube.com/watch?v=pnyYQcgekx8) · [📊 Presentation PPT](https://github.com/vybex-dev/railmind-ai/blob/main/RailMind_AI_Hackathon.pdf)
 
 </div>
 
@@ -196,26 +196,26 @@ An **AI-driven health scoring engine** that evaluates 13 real-world train sensor
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                                                           │
-│  01. JOURNEY, SENSOR & IMAGE DATA                        │
+│                                                         │
+│  01. JOURNEY, SENSOR & IMAGE DATA                       │
 │      50k+ journey records · IoT/sensor inputs ·         │
 │      uploaded track images · live NTES feeds            │
-│                    ↓                                     │
-│  02. AI DETECTION ENGINE                                 │
+│                    ↓                                    │
+│  02. AI DETECTION ENGINE                                │
 │      XGBoost delay model · CLIP vision classifier ·     │
-│      weighted sensor risk engine                         │
-│                    ↓                                     │
-│  03. RISK & CROWD ANALYSIS                               │
-│      Crowd forecasts fused with track defect &           │
-│      train health scores                                 │
-│                    ↓                                     │
-│  04. RAILMIND AGENT (LLM)                                │
-│      Converts raw model outputs into human-readable      │
-│      advisories, alerts & recommendations (Groq/Llama)   │
-│                    ↓                                     │
-│  05. UNIFIED RAILMIND DASHBOARD                          │
-│      All signals in one live command view                │
-│                                                           │
+│      weighted sensor risk engine                        │
+│                    ↓                                    │
+│  03. RISK & CROWD ANALYSIS                              │
+│      Crowd forecasts fused with track defect &          │
+│      train health scores                                │
+│                    ↓                                    │
+│  04. RAILMIND AGENT (LLM)                               │
+│      Converts raw model outputs into human-readable     │
+│      advisories, alerts & recommendations (Groq/Llama)  │
+│                    ↓                                    │
+│  05. UNIFIED RAILMIND DASHBOARD                         │
+│      All signals in one live command view               │
+│                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
