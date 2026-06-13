@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Train Checkup | RailMind AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="icon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="train.css" />
+    <style>
+      /* ── Inline improvements (no changes to train.css) ── */
+
+      /* Smoother hero gradient overlay */
+      .maintenance-hero {
+        position: relative;
+      }
+
+      /* Eyebrow pill – slightly bigger, more presence */
+      .eyebrow {
+        font-size: 0.84rem;
+        letter-spacing: 0.04em;
+      }
+
+      /* Status panel cards – warmer glass */
+      .maintenance-status-panel div {
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(90, 217, 247, 0.22);
+        transition: background 0.2s;
+      }
+      .maintenance-status-panel div:hover {
+        background: rgba(255, 255, 255, 0.34);
+      }
+
+      /* Live pulse dot next to "Online" */
+      .status-online-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #38f7a1;
+        box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.25);
+        margin-right: 7px;
+        animation: pulse-dot 1.8s ease-in-out infinite;
+        vertical-align: middle;
+      }
+      @keyframes pulse-dot {
+        0%,
+        100% {
+          box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.25);
+        }
+        50% {
+          box-shadow: 0 0 0 7px rgba(56, 247, 161, 0);
+        }
+      }
+
+      /* Section headings inside form – tighter feel */
+      .form-section-heading h2 {
+        letter-spacing: -0.01em;
+      }
+
+      /* Input polish – cleaner placeholder */
+      .form-grid input::placeholder {
+        color: rgba(7, 56, 74, 0.35);
+        font-weight: 500;
+      }
+
+      /* Analyze button – full-width pill glow on hover */
+      .analyze-btn {
+        border-radius: 12px;
+        letter-spacing: 0.01em;
+        position: relative;
+        overflow: hidden;
+      }
+      .analyze-btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.12),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .analyze-btn:hover::after {
+        opacity: 1;
+      }
+      .analyze-btn:active {
+        transform: scale(0.985);
+      }
+
+      /* Loading bar shimmer */
+      .analysis-loading {
+        flex-direction: column;
+        gap: 18px;
+        padding: 36px;
+      }
+      .loading-progress-wrap {
+        width: 100%;
+        max-width: 340px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(8, 124, 166, 0.12);
+        overflow: hidden;
+      }
+      .loading-progress-bar {
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #087ca6, #5ad9f7);
+        animation: shimmer-bar 1.6s ease-in-out infinite;
+      }
+      @keyframes shimmer-bar {
+        0% {
+          width: 0%;
+          margin-left: 0%;
+        }
+        50% {
+          width: 60%;
+          margin-left: 20%;
+        }
+        100% {
+          width: 0%;
+          margin-left: 100%;
+        }
+      }
+      .loading-steps {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .loading-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 1px solid rgba(8, 124, 166, 0.2);
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--navy);
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0.4;
+        transition:
+          opacity 0.4s,
+          border-color 0.4s;
+      }
+      .loading-step.active {
+        opacity: 1;
+        border-color: var(--cyan);
+        color: var(--blue);
+        background: rgba(90, 217, 247, 0.1);
+      }
+      .loading-step i {
+        font-size: 0.82rem;
+      }
+
+      /* Report header enhancement */
+      .report-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        padding-bottom: 20px;
+        margin-bottom: 26px;
+      }
+
+      /* Score card track label row */
+      .score-track-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+
+      /* Section dividers in report */
+      .report-section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .report-section-label i {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        background: linear-gradient(135deg, #087ca6, #5ad9f7);
+        color: #fff;
+        flex-shrink: 0;
+      }
+      .report-section-label h3 {
+        margin: 0;
+      }
+
+      /* Report list items – softer spacing */
+      .report-details li {
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background 0.15s;
+      }
+      .report-details li:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Risk card – add a subtle left border accent */
+      .risk-card {
+        border-left: 4px solid var(--cyan);
+      }
+      .ai-report.risk-medium .risk-card {
+        border-left-color: #ffd166;
+      }
+      .ai-report.risk-high .risk-card {
+        border-left-color: #ff6b6b;
+      }
+
+      /* Status badge – rounded pill */
+      .status-badge {
+        border-radius: 999px;
+        padding: 0 22px;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+      }
+
+      /* Form section number badge */
+      .form-section-heading span {
+        letter-spacing: 0.02em;
+        font-size: 0.78rem;
+      }
+
+      /* Micro-divider between form sections */
+      .form-section + .form-section {
+        border-top: 1px solid rgba(90, 217, 247, 0.08);
+      }
+
+      /* Report grid equal-height */
+      .report-grid {
+        align-items: stretch;
+      }
+      .score-card,
+      .risk-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      /* Print-friendly report title */
+      .report-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+      }
+      .report-meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.73rem;
+        font-weight: 700;
+        background: rgba(8, 124, 166, 0.1);
+        border: 1px solid rgba(8, 124, 166, 0.18);
+        color: var(--blue);
+      }
+
+      /* Fade-in animation for report */
+      @keyframes report-appear {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ai-report:not([hidden]) {
+        animation: report-appear 0.55s ease forwards;
+      }
+
+      /* Section icon for form headings */
+      .section-icon {
+        margin-right: 2px;
+        opacity: 0.7;
+      }
+
+      /* Tooltip-style subtext under input labels */
+      .input-hint {
+        font-size: 0.73rem;
+        font-weight: 500;
+        color: var(--muted);
+        margin-top: -4px;
+      }
+
+      /* Floating section progress indicator */
+      .form-progress-bar {
+        position: sticky;
+        top: 72px;
+        z-index: 10;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        margin-bottom: 22px;
+        overflow: hidden;
+      }
+      .form-progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #087ca6, #5ad9f7);
+        transition: width 0.3s ease;
+      }
+    </style>
+  </head>
+
+  <body class="maintenance-page">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="/index" class="logo" aria-label="RailMind AI home">
+          <span class="logo-mark"
+            ><i class="fa-solid fa-train-subway"></i
+          ></span>
+          <span>RailMind AI</span>
+        </a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="nav-menu">
+          <a href="/index"><i class="fa-solid fa-house"></i> Home</a>
+          <a href="/delay"
+            ><i class="fa-solid fa-clock-rotate-left"></i> Delay Predictor</a
+          >
+          <a href="/crowd"
+            ><i class="fa-solid fa-tower-broadcast"></i> Station Commander</a
+          >
+          <a href="/safety"
+            ><i class="fa-solid fa-shield-halved"></i> Track Safety</a
+          >
+          <a href="/checkup" style="color: var(--blue)">
+            <i class="fa-solid fa-heart-pulse section-icon"></i> Train Checkup
+          </a>
+        </div>
+        <a class="nav-cta" href="/checkup.html">
+          <i class="fa-solid fa-heart-pulse"></i> Train Checkup
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="maintenance-hero section-shell">
+        <div class="maintenance-hero-content reveal">
+          <div class="eyebrow">
+            <i class="fa-solid fa-heart-pulse"></i> Train Checkup — Predictive
+            Maintenance Console
+          </div>
+          <h1>Train Health Assessment &amp; Predictive Maintenance</h1>
+          <p>
+            Complete the mandatory pre-departure inspection checklist. RailMind
+            AI will analyze the train's condition and determine whether it is
+            safe to operate.
+          </p>
+        </div>
+
+        <div
+          class="maintenance-status-panel reveal"
+          aria-label="Inspection readiness summary"
+        >
+          <div>
+            <span>AI readiness</span>
+            <strong
+              ><span class="status-online-dot" aria-hidden="true"></span
+              >Online</strong
+            >
+          </div>
+          <div>
+            <span>Inspection mode</span>
+            <strong
+              ><i
+                class="fa-solid fa-train"
+                style="margin-right: 6px; color: var(--blue); font-size: 0.9rem"
+              ></i
+              >Pre-departure</strong
+            >
+          </div>
+          <div>
+            <span>Report type</span>
+            <strong
+              ><i
+                class="fa-solid fa-shield-halved"
+                style="margin-right: 6px; color: var(--blue); font-size: 0.9rem"
+              ></i
+              >Rule-based</strong
+            >
+          </div>
+          <div>
+            <span>Engine checks</span>
+            <strong id="panelEngineChecks">4 parameters</strong>
+          </div>
+          <div>
+            <span>Safety checks</span>
+            <strong>3 parameters</strong>
+          </div>
+          <div>
+            <span>Total checks</span>
+            <strong>13 parameters</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="inspection" class="maintenance-workspace section-shell">
+        <!-- Sticky progress bar -->
+        <div class="form-progress-bar" id="formProgressBar" aria-hidden="true">
+          <div class="form-progress-fill" id="formProgressFill"></div>
+        </div>
+
+        <form class="inspection-form reveal" id="maintenanceForm">
+          <!-- 01 Train Information -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>01</span>
+              <h2>
+                <i class="fa-solid fa-train-subway section-icon"></i> Train
+                Information
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Train ID
+                <input
+                  type="text"
+                  name="trainId"
+                  placeholder="RG-2047"
+                  required
+                />
+              </label>
+              <label>
+                Train Name
+                <input
+                  type="text"
+                  name="trainName"
+                  placeholder="Vande Bharat Express"
+                  required
+                />
+              </label>
+              <label>
+                Route
+                <input
+                  type="text"
+                  name="route"
+                  placeholder="Delhi → Mumbai"
+                  required
+                />
+              </label>
+              <label>
+                Inspection Date
+                <input type="date" name="inspectionDate" required />
+              </label>
+              <label>
+                Inspector Name
+                <input
+                  type="text"
+                  name="inspectorName"
+                  placeholder="Inspector name"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- 02 Engine Health -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>02</span>
+              <h2>
+                <i class="fa-solid fa-gear section-icon"></i> Engine Health
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Engine Temperature (&deg;C)
+
+                <input
+                  type="number"
+                  name="engineTemperature"
+                  min="0"
+                  max="160"
+                  step="0.1"
+                  placeholder="82"
+                  required
+                />
+              </label>
+              <label>
+                Oil Level (%)
+
+                <input
+                  type="number"
+                  name="oilLevelPercent"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="72"
+                  required
+                />
+              </label>
+              <label>
+                Fuel Rail Pressure (PSI)
+
+                <input
+                  type="number"
+                  name="fuelPressure"
+                  min="0"
+                  max="180"
+                  step="0.1"
+                  placeholder="58"
+                  required
+                />
+              </label>
+              <label>
+                Engine Vibration (mm/s)
+
+                <input
+                  type="number"
+                  name="engineVibration"
+                  min="0"
+                  max="40"
+                  step="0.1"
+                  placeholder="3.2"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- 03 Brake System -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>03</span>
+              <h2>
+                <i class="fa-solid fa-circle-stop section-icon"></i> Brake
+                System
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Brake Pressure (PSI)
+
+                <input
+                  type="number"
+                  name="brakePressure"
+                  min="0"
+                  max="220"
+                  step="0.1"
+                  placeholder="105"
+                  required
+                />
+              </label>
+              <label>
+                Brake Pad Thickness (mm)
+
+                <input
+                  type="number"
+                  name="brakePadThickness"
+                  min="0"
+                  max="40"
+                  step="0.1"
+                  placeholder="14"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- 04 Wheel & Track Contact -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>04</span>
+              <h2>
+                <i class="fa-solid fa-circle-dot section-icon"></i> Wheel &amp;
+                Track Contact
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Wheel Wear (%)
+
+                <input
+                  type="number"
+                  name="wheelWear"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="12"
+                  required
+                />
+              </label>
+              <label>
+                Wheel Crack Length (mm)
+
+                <input
+                  type="number"
+                  name="wheelCrackLength"
+                  min="0"
+                  max="120"
+                  step="0.1"
+                  placeholder="0"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- 05 Electrical System -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>05</span>
+              <h2>
+                <i class="fa-solid fa-bolt section-icon"></i> Electrical System
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Battery Voltage (V)
+
+                <input
+                  type="number"
+                  name="batteryVoltage"
+                  min="0"
+                  max="140"
+                  step="0.1"
+                  placeholder="74"
+                  required
+                />
+              </label>
+              <label>
+                Signal Packet Loss (%)
+
+                <input
+                  type="number"
+                  name="signalPacketLoss"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  placeholder="1.5"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- 06 Safety Inspection -->
+          <div class="form-section">
+            <div class="form-section-heading">
+              <span>06</span>
+              <h2>
+                <i class="fa-solid fa-shield-halved section-icon"></i> Safety
+                Inspection
+              </h2>
+            </div>
+            <div class="form-grid">
+              <label>
+                Fire Extinguisher Pressure (PSI)
+
+                <input
+                  type="number"
+                  name="fireExtinguisherPressure"
+                  min="0"
+                  max="300"
+                  step="0.1"
+                  placeholder="150"
+                  required
+                />
+              </label>
+              <label>
+                Emergency Exit Opening Time (s)
+
+                <input
+                  type="number"
+                  name="emergencyExitOpenTime"
+                  min="0"
+                  max="60"
+                  step="0.1"
+                  placeholder="3.5"
+                  required
+                />
+              </label>
+              <label>
+                Door Response Time (s)
+
+                <input
+                  type="number"
+                  name="doorResponseTime"
+                  min="0"
+                  max="30"
+                  step="0.1"
+                  placeholder="1.2"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary analyze-btn" type="submit">
+            <i class="fa-solid fa-heart-pulse"></i>
+            Run Analysis
+          </button>
+        </form>
+
+        <!-- Loading state -->
+        <div class="analysis-loading" id="analysisLoading" hidden>
+          <span></span>
+          <strong>AI is analyzing inspection signals…</strong>
+          <div class="loading-progress-wrap">
+            <div class="loading-progress-bar"></div>
+          </div>
+          <div class="loading-steps" id="loadingSteps">
+            <span class="loading-step" data-step="0"
+              ><i class="fa-solid fa-gear"></i> Engine</span
+            >
+            <span class="loading-step" data-step="1"
+              ><i class="fa-solid fa-circle-stop"></i> Brakes</span
+            >
+            <span class="loading-step" data-step="2"
+              ><i class="fa-solid fa-circle-dot"></i> Wheels</span
+            >
+            <span class="loading-step" data-step="3"
+              ><i class="fa-solid fa-bolt"></i> Electrical</span
+            >
+            <span class="loading-step" data-step="4"
+              ><i class="fa-solid fa-shield-halved"></i> Safety</span
+            >
+          </div>
+        </div>
+
+        <!-- AI Report -->
+        <article
+          class="ai-report reveal"
+          id="aiReport"
+          aria-live="polite"
+          hidden
+        >
+          <div class="report-header">
+            <div>
+              <span>Train Checkup — AI inspection report</span>
+              <h2 id="reportTrainId">Train ID</h2>
+              <div class="report-meta-row" id="reportMetaRow"></div>
+            </div>
+            <div class="status-badge" id="statusBadge">SAFE TO RUN</div>
+          </div>
+
+          <div class="report-grid">
+            <div class="score-card">
+              <span>Overall Risk Score</span>
+              <strong id="healthScore">0%</strong>
+              <div>
+                <div class="score-track">
+                  <span id="scoreBar"></span>
+                </div>
+                <div class="score-track-labels">
+                  <span>0 — Low</span>
+                  <span>30 — Medium</span>
+                  <span>60 — High</span>
+                </div>
+              </div>
+            </div>
+            <div class="risk-card">
+              <span>Risk Level</span>
+              <strong id="riskLevel">LOW RISK</strong>
+              <p id="operationStatus">Safe to operate on the assigned route.</p>
+            </div>
+          </div>
+
+          <div class="report-details">
+            <div class="safety-violations">
+              <div class="report-section-label">
+                <i
+                  class="fa-solid fa-triangle-exclamation"
+                  aria-hidden="true"
+                ></i>
+                <h3>Safety Rule Violations</h3>
+              </div>
+              <ul id="safetyRuleViolations"></ul>
+            </div>
+            <div>
+              <div class="report-section-label">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                <h3>Measurement Classifications</h3>
+              </div>
+              <ul id="measurementClassifications"></ul>
+            </div>
+            <div>
+              <div class="report-section-label">
+                <i
+                  class="fa-solid fa-circle-exclamation"
+                  aria-hidden="true"
+                ></i>
+                <h3>Detected Issues</h3>
+              </div>
+              <ul id="detectedIssues"></ul>
+            </div>
+            <div>
+              <div class="report-section-label">
+                <i class="fa-solid fa-wrench" aria-hidden="true"></i>
+                <h3>Maintenance Recommendations</h3>
+              </div>
+              <ul id="maintenanceRecommendations"></ul>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- ═══════════════════════════════ FOOTER ══════════════════════════════════ -->
+    <footer id="contact" class="footer-new">
+      <!-- Live status ticker bar -->
+      <div class="footer-ticker">
+        <div class="ticker-inner">
+          <span class="ticker-label"
+            ><i class="fa-solid fa-circle-dot"></i> LIVE</span
+          >
+          <div class="ticker-track">
+            <div class="ticker-items">
+              <span
+                ><i class="fa-solid fa-train-subway"></i> Delay Predictor —
+                94.2% accuracy · 50k journeys analysed</span
+              >
+              <span
+                ><i class="fa-solid fa-tower-broadcast"></i> Station Commander —
+                Real-time crowd data · 5 major stations</span
+              >
+              <span
+                ><i class="fa-solid fa-shield-halved"></i> Track Safety — CLIP
+                vision · 99.1% defect recall</span
+              >
+              <span
+                ><i class="fa-solid fa-bolt"></i> All systems operational · FAR
+                AWAY 2026</span
+              >
+              <span
+                ><i class="fa-solid fa-train-subway"></i> Delay Predictor —
+                94.2% accuracy · 50k journeys analysed</span
+              >
+              <span
+                ><i class="fa-solid fa-tower-broadcast"></i> Station Commander —
+                Real-time crowd data · 5 major stations</span
+              >
+              <span
+                ><i class="fa-solid fa-shield-halved"></i> Track Safety — CLIP
+                vision · 99.1% defect recall</span
+              >
+              <span
+                ><i class="fa-solid fa-bolt"></i> All systems operational · FAR
+                AWAY 2026</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rail track divider -->
+      <div class="footer-rail-divider">
+        <div class="rail-line left"></div>
+        <div class="rail-train-icon">
+          <i class="fa-solid fa-train-subway"></i>
+        </div>
+        <div class="rail-line right"></div>
+      </div>
+
+      <!-- Main footer body -->
+      <div class="footer-body">
+        <div class="footer-new-grid">
+          <!-- Brand column -->
+          <div class="footer-brand-col">
+            <a href="index.html" class="footer-logo">
+              <span class="footer-logo-mark"
+                ><i class="fa-solid fa-train-subway"></i
+              ></span>
+              <span>RailMind AI</span>
+            </a>
+            <p class="footer-tagline">
+              Four AI modules. One railway intelligence platform. Built for
+              India's future.
+            </p>
+
+            <!-- Stats row -->
+            <div class="footer-mini-stats">
+              <div class="footer-mini-stat">
+                <strong>50k</strong>
+                <span>Journeys</span>
+              </div>
+              <div class="footer-mini-stat">
+                <strong>5</strong>
+                <span>Stations</span>
+              </div>
+              <div class="footer-mini-stat">
+                <strong>4</strong>
+                <span>AI Modules</span>
+              </div>
+            </div>
+
+            <div class="footer-socials">
+              <a
+                href="https://www.instagram.com/already.rusted"
+                aria-label="Instagram"
+                class="footer-social-btn"
+              >
+                <i class="fa-brands fa-instagram"></i>
+              </a>
+              <a
+                href="https://github.com/vybex-dev/"
+                aria-label="GitHub"
+                class="footer-social-btn"
+              >
+                <i class="fa-brands fa-github"></i>
+              </a>
+              <a
+                href="https://www.youtube.com/@already.rusted"
+                aria-label="YouTube"
+                class="footer-social-btn"
+                ><i class="fa-brands fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+
+          <!-- AI Modules column -->
+          <div class="footer-links-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot cyan"></span>AI Modules
+            </h4>
+            <a href="delay.html" class="footer-link">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>Delay Predictor</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="crowd.html" class="footer-link">
+              <i class="fa-solid fa-tower-broadcast"></i>
+              <span>Station Commander</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="safety.html" class="footer-link">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Track Safety</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="checkup.html" class="footer-link">
+              <i class="fa-solid fa-heartbeat"></i>
+              <span>Train Checkup</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+          </div>
+
+          <!-- Platform column -->
+          <div class="footer-links-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot blue"></span>Platform
+            </h4>
+            <a href="/index" class="footer-link">
+              <i class="fa-solid fa-house"></i>
+              <span>Home</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="/index.html#about" class="footer-link">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>About Project</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="/index.html#team" class="footer-link">
+              <i class="fa-solid fa-users"></i>
+              <span>Meet the Team</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+          </div>
+
+          <!-- Contact column -->
+          <div class="footer-contact-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot white"></span>Get in Touch
+            </h4>
+            <a href="mailto:hello@railmind.ai" class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div>
+                <small>Email us</small>
+                <span>already.rusted@gmail.com</span>
+              </div>
+            </a>
+            <div class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <small>Based in</small>
+                <span>Indore, India 🇮🇳</span>
+              </div>
+            </div>
+            <a href="tel:+919000000000" class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div>
+                <small>Call us</small>
+                <span>+91 88398 26054</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer bottom bar -->
+      <div class="footer-new-bottom">
+        <div class="footer-bottom-inner">
+          <span class="footer-copy"
+            >© 2026 RailMind AI · FAR AWAY Hackathon</span
+          >
+          <div class="footer-bottom-badges">
+            <span class="footer-badge"
+              ><i class="fa-solid fa-brain"></i> XGBoost ML</span
+            >
+            <span class="footer-badge"
+              ><i class="fa-solid fa-eye"></i> CLIP Vision</span
+            >
+            <span class="footer-badge"
+              ><i class="fa-solid fa-cloud"></i> Cloud AI</span
+            >
+          </div>
+          <span class="footer-copy footer-built"
+            >Built for smarter railways 🚆</span
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="train.js"></script>
+    <script>
+      /* ── Inline JS enhancements (additive only, does not replace train.js) ── */
+
+      /* Form progress fill as user fills inputs */
+      (function () {
+        const form = document.getElementById("maintenanceForm");
+        const fill = document.getElementById("formProgressFill");
+        if (!form || !fill) return;
+
+        const updateProgress = () => {
+          const inputs = form.querySelectorAll("input[required]");
+          const filled = Array.from(inputs).filter(
+            (i) => i.value.trim() !== "",
+          ).length;
+          fill.style.width = ((filled / inputs.length) * 100).toFixed(1) + "%";
+        };
+
+        form.addEventListener("input", updateProgress);
+        form.addEventListener("change", updateProgress);
+      })();
+
+      /* Loading step sequencer */
+      (function () {
+        const form = document.getElementById("maintenanceForm");
+        if (!form) return;
+
+        form.addEventListener("submit", function () {
+          const steps = document.querySelectorAll(".loading-step");
+          let current = 0;
+          const interval = setInterval(() => {
+            steps.forEach((s) => s.classList.remove("active"));
+            if (current < steps.length) {
+              steps[current].classList.add("active");
+              current++;
+            } else {
+              clearInterval(interval);
+            }
+          }, 160);
+        });
+      })();
+
+      /* Report meta pills (date + route) after form submit */
+      (function () {
+        const form = document.getElementById("maintenanceForm");
+        const metaRow = document.getElementById("reportMetaRow");
+        if (!form || !metaRow) return;
+
+        form.addEventListener("submit", function () {
+          const fd = new FormData(form);
+          window._railSubmitData = Object.fromEntries(fd.entries());
+        });
+
+        /* Observe the report becoming visible */
+        const report = document.getElementById("aiReport");
+        if (!report) return;
+
+        const obs = new MutationObserver(() => {
+          if (!report.hidden && window._railSubmitData) {
+            const d = window._railSubmitData;
+            metaRow.innerHTML = "";
+
+            const pills = [
+              { icon: "fa-route", text: d.route || "—" },
+              { icon: "fa-calendar", text: d.inspectionDate || "—" },
+              { icon: "fa-user", text: d.inspectorName || "—" },
+            ];
+
+            pills.forEach((p) => {
+              const span = document.createElement("span");
+              span.className = "report-meta-pill";
+              span.innerHTML = `<i class="fa-solid ${p.icon}"></i> ${p.text}`;
+              metaRow.appendChild(span);
+            });
+          }
+        });
+
+        obs.observe(report, { attributes: true, attributeFilter: ["hidden"] });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Station Commander | RailMind AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="icon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="train.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      .page-header {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 130px 0 60px;
+        text-align: center;
+      }
+      .page-header h1 {
+        font-size: clamp(2.6rem, 5vw, 4rem);
+        color: var(--navy);
+        line-height: 1.04;
+        margin-bottom: 14px;
+      }
+      .page-header p {
+        font-size: 1.08rem;
+        color: var(--muted);
+        max-width: 560px;
+        margin: 0 auto;
+      }
+
+      /* ── Station selector ────────────────────────────────────── */
+      .station-picker {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto 48px;
+      }
+      .station-picker h3 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 14px;
+      }
+      .station-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+      .station-btn {
+        padding: 16px 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--glass);
+        backdrop-filter: blur(14px);
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      .station-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow);
+      }
+      .station-btn.active {
+        border-color: var(--cyan);
+        background: rgba(8, 124, 166, 0.1);
+        box-shadow: 0 0 0 3px rgba(90, 217, 247, 0.25);
+      }
+      .station-btn .code {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--blue);
+      }
+      .station-btn .name {
+        display: block;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .station-btn .plat {
+        display: block;
+        font-size: 0.72rem;
+        color: var(--cyan);
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      /* ── Dashboard grid ──────────────────────────────────────── */
+      .crowd-dashboard {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto 80px;
+      }
+      .dashboard-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 22px;
+        border-radius: 12px 12px 0 0;
+        background: var(--navy);
+        color: #fff;
+      }
+      .dashboard-topbar strong {
+        font-size: 1rem;
+      }
+      .dashboard-topbar small {
+        display: block;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.8rem;
+      }
+      .live-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        background: rgba(90, 217, 247, 0.15);
+        border: 1px solid rgba(90, 217, 247, 0.3);
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--cyan);
+      }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--cyan);
+        animation: pulse 1.5s ease infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(90, 217, 247, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(90, 217, 247, 0);
+        }
+      }
+
+      .metrics-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1.2fr 1.6fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        overflow: hidden;
+      }
+      .metric-card {
+        padding: 28px 24px;
+        background: var(--glass-strong);
+        backdrop-filter: blur(18px);
+        border-right: 1px solid var(--border);
+      }
+      .metric-card:last-child {
+        border-right: none;
+      }
+      .metric-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 10px;
+      }
+      .metric-big {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: var(--navy);
+        line-height: 1;
+      }
+      .congestion-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        margin-top: 12px;
+      }
+      .cong-low {
+        background: rgba(14, 191, 122, 0.12);
+        color: #0ebf7a;
+        border: 1px solid rgba(14, 191, 122, 0.25);
+      }
+      .cong-medium {
+        background: rgba(224, 160, 0, 0.12);
+        color: #b37a00;
+        border: 1px solid rgba(224, 160, 0, 0.25);
+      }
+      .cong-high {
+        background: rgba(217, 52, 69, 0.12);
+        color: #d93445;
+        border: 1px solid rgba(217, 52, 69, 0.25);
+      }
+
+      .alert-banner {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px;
+        margin-top: 8px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        background: rgba(217, 52, 69, 0.1);
+        color: #d93445;
+        border: 1px solid rgba(217, 52, 69, 0.25);
+      }
+
+      /* ── Charts row ──────────────────────────────────────────── */
+      .charts-row {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+      .chart-panel {
+        padding: 24px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--glass-strong);
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow);
+      }
+      .chart-panel h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 4px;
+      }
+      .chart-panel small {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .chart-wrap {
+        margin-top: 18px;
+        position: relative;
+        height: 220px;
+      }
+
+      /* ── Platform allocation ─────────────────────────────────── */
+      .platforms-section {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto 100px;
+      }
+      .platform-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+      .platform-card {
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--glass);
+        backdrop-filter: blur(14px);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .platform-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+      }
+      .plat-num {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--blue);
+      }
+      .plat-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        margin: 8px 0;
+      }
+      .plat-available {
+        background: rgba(14, 191, 122, 0.12);
+        color: #0ebf7a;
+      }
+      .plat-occupied {
+        background: rgba(217, 52, 69, 0.12);
+        color: #d93445;
+      }
+      .plat-recommended {
+        background: rgba(8, 124, 166, 0.12);
+        color: #087ca6;
+        border: 1px solid var(--border);
+      }
+      .plat-train {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .plat-rec {
+        font-size: 0.78rem;
+        color: var(--navy);
+        line-height: 1.45;
+      }
+
+      /* ── Loading ─────────────────────────────────────────────── */
+      .loading-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 60px;
+        text-align: center;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(8, 124, 166, 0.14);
+        border-top-color: var(--blue);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .station-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .metrics-row {
+          grid-template-columns: 1fr 1fr;
+        }
+        .charts-row {
+          grid-template-columns: 1fr;
+        }
+        .platform-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        .station-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .metrics-row {
+          grid-template-columns: 1fr;
+        }
+        .platform-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── Real-data source banner ─────────────────────────────── */
+      .data-source-banner {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 11px 18px;
+        border-radius: 10px;
+        background: rgba(8, 124, 166, 0.06);
+        border: 1px solid rgba(8, 124, 166, 0.18);
+        font-size: 0.82rem;
+        color: var(--muted);
+        flex-wrap: wrap;
+      }
+      .data-source-banner strong {
+        color: var(--navy);
+        font-weight: 700;
+      }
+      .ds-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        background: rgba(14, 191, 122, 0.12);
+        color: #0ebf7a;
+        border: 1px solid rgba(14, 191, 122, 0.25);
+      }
+      .ds-pill.orange {
+        background: rgba(224, 130, 0, 0.1);
+        color: #b36200;
+        border-color: rgba(224, 130, 0, 0.22);
+      }
+      .ds-pill.blue {
+        background: rgba(8, 124, 166, 0.1);
+        color: var(--blue);
+        border-color: rgba(8, 124, 166, 0.22);
+      }
+
+      /* ── NTES live delay strip ──────────────────────────────── */
+      .ntes-strip {
+        width: min(1200px, calc(100% - 36px));
+        margin: 0 auto 28px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--glass-strong);
+        backdrop-filter: blur(18px);
+        overflow: hidden;
+      }
+      .ntes-strip-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .ntes-strip-header span {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--navy);
+      }
+      .ntes-strip-body {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+      }
+      .ntes-train-card {
+        padding: 14px 16px;
+        border-right: 1px solid var(--border);
+        transition: background 0.2s;
+      }
+      .ntes-train-card:last-child {
+        border-right: none;
+      }
+      .ntes-train-card:hover {
+        background: rgba(8, 124, 166, 0.04);
+      }
+      .ntes-train-num {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--blue);
+        letter-spacing: 0.03em;
+      }
+      .ntes-train-name {
+        font-size: 0.76rem;
+        color: var(--navy);
+        margin: 3px 0 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ntes-delay-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 0.72rem;
+        font-weight: 800;
+      }
+      .delay-good {
+        background: rgba(14, 191, 122, 0.12);
+        color: #0ebf7a;
+      }
+      .delay-warn {
+        background: rgba(224, 160, 0, 0.12);
+        color: #b37a00;
+      }
+      .delay-bad {
+        background: rgba(217, 52, 69, 0.12);
+        color: #d93445;
+      }
+      .ntes-route {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .ntes-p90 {
+        font-size: 0.68rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      @media (max-width: 900px) {
+        .ntes-strip-body {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .ntes-train-card:nth-child(2) {
+          border-right: none;
+        }
+        .ntes-train-card:nth-child(3) {
+          border-top: 1px solid var(--border);
+        }
+      }
+      @media (max-width: 600px) {
+        .ntes-strip-body {
+          grid-template-columns: 1fr;
+        }
+        .ntes-train-card {
+          border-right: none;
+          border-top: 1px solid var(--border);
+        }
+        .ntes-train-card:first-child {
+          border-top: none;
+        }
+        .data-source-banner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+      }
+
+      /* ── Station detail extras ──────────────────────────────── */
+      .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        background: rgba(8, 124, 166, 0.07);
+        color: var(--blue);
+        border: 1px solid rgba(8, 124, 166, 0.14);
+        margin-top: 6px;
+        margin-right: 4px;
+      }
+      .delay-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid var(--border);
+        margin-bottom: 6px;
+      }
+      .delay-row:last-child {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── Nav ──────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="index.html" class="logo" aria-label="RailMind AI home">
+          <span class="logo-mark"
+            ><i class="fa-solid fa-train-subway"></i
+          ></span>
+          <span>RailMind AI</span>
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="nav-menu">
+          <a href="/index"><i class="fa-solid fa-house"></i> Home</a>
+          <a href="/delay"
+            ><i class="fa-solid fa-clock-rotate-left"></i> Delay Predictor</a
+          >
+          <a href="/crowd" style="color: var(--blue)"
+            ><i class="fa-solid fa-tower-broadcast"></i> Station Commander</a
+          >
+          <a href="/safety"
+            ><i class="fa-solid fa-shield-halved"></i> Track Safety</a
+          >
+          <a href="/checkup">
+            <i class="fa-solid fa-heart-pulse section-icon"></i> Train Checkup
+          </a>
+        </div>
+        <a href="crowd.html" class="nav-cta"
+          ><i class="fa-solid fa-users"></i> Live Crowd</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <!-- ── Page header ──────────────────────────────────────────── -->
+      <div class="page-header">
+        <div class="eyebrow reveal" style="margin: 0 auto 18px">
+          <i class="fa-solid fa-users-viewfinder"></i> Station Crowd
+          Intelligence
+        </div>
+        <h1 class="reveal">
+          Real-time crowd command<br />for station operations
+        </h1>
+        <p class="reveal" style="margin-top: 12px">
+          AI-forecasted crowd density, smart platform allocation, and 8-hour
+          outlooks for India's busiest stations.
+        </p>
+      </div>
+
+      <!-- ── Real-data source banner ────────────────────────────── -->
+      <div class="data-source-banner reveal">
+        <span
+          ><i
+            class="fa-solid fa-database"
+            style="color: var(--cyan); margin-right: 6px"
+          ></i>
+          <strong>Data Sources:</strong>
+        </span>
+        <span class="ds-pill"
+          ><i class="fa-solid fa-check-circle"></i> IR Annual Stat Statement
+          2022-23</span
+        >
+        <span class="ds-pill orange"
+          ><i class="fa-solid fa-train"></i> NTES Live Running Status</span
+        >
+        <span class="ds-pill blue"
+          ><i class="fa-solid fa-flask"></i> RDSO TN-CE-0093 (Hour Splits)</span
+        >
+        <span style="margin-left: auto; font-size: 0.74rem"
+          >Crowd baselines calibrated to real annual footfall · Seasonal
+          multipliers from MoR reports</span
+        >
+      </div>
+
+      <!-- ── NTES live delay strip ──────────────────────────────── -->
+      <div class="ntes-strip reveal" id="ntes">
+        <div class="ntes-strip-header">
+          <span
+            ><i
+              class="fa-solid fa-satellite-dish"
+              style="color: var(--cyan); margin-right: 6px"
+            ></i
+            >Live Train Delays — NTES Data</span
+          >
+          <span
+            id="ntesUpdatedAt"
+            style="font-size: 0.74rem; color: var(--muted)"
+            >Loading…</span
+          >
+        </div>
+        <div class="ntes-strip-body" id="ntesStripBody">
+          <!-- populated by JS -->
+          <div
+            style="
+              grid-column: 1/-1;
+              padding: 20px;
+              text-align: center;
+              color: var(--muted);
+              font-size: 0.82rem;
+            "
+          >
+            <div
+              class="spinner"
+              style="
+                margin: 0 auto 10px;
+                width: 28px;
+                height: 28px;
+                border-width: 3px;
+              "
+            ></div>
+            Fetching live delay data…
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Station selector ─────────────────────────────────────── -->
+      <div class="station-picker reveal">
+        <h3><i class="fa-solid fa-location-dot"></i> Select Station</h3>
+        <div class="station-grid" id="stationGrid">
+          <!-- Populated by JS -->
+          <div
+            style="
+              grid-column: 1/-1;
+              text-align: center;
+              color: var(--muted);
+              padding: 24px;
+            "
+          >
+            <div class="spinner" style="margin: 0 auto 12px"></div>
+            Loading stations…
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Loading state ─────────────────────────────────────────── -->
+      <div
+        id="loadingPanel"
+        class="loading-panel crowd-dashboard"
+        style="display: none"
+      >
+        <div class="spinner"></div>
+        <p style="color: var(--navy); font-weight: 700">
+          Calculating crowd forecast…
+        </p>
+        <small style="color: var(--muted)"
+          >Analyzing historical patterns and current conditions</small
+        >
+      </div>
+
+      <!-- ── Dashboard ─────────────────────────────────────────────── -->
+      <div id="dashboardSection" class="crowd-dashboard" style="display: none">
+        <div class="dashboard-topbar">
+          <div>
+            <strong id="dashStationName">—</strong>
+            <small id="dashStationSub">—</small>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="live-pill">
+              <div class="live-dot"></div>
+              Live Forecast
+            </div>
+            <span
+              id="lastUpdatedClock"
+              style="font-size: 0.74rem; color: var(--muted); font-weight: 600"
+            ></span>
+            <button
+              id="refreshBtn"
+              onclick="refreshStation()"
+              title="Refresh data"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--cyan);
+                font-size: 14px;
+                padding: 4px 6px;
+                border-radius: 6px;
+                transition: opacity 0.2s;
+              "
+              onmouseover="this.style.opacity = '0.7'"
+              onmouseout="this.style.opacity = '1'"
+            >
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric-card">
+            <p class="metric-label">Current Crowd</p>
+            <p class="metric-big" id="metricCrowd">—</p>
+            <span class="congestion-badge" id="congestionBadge">—</span>
+            <div class="alert-banner" id="alertBanner">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span id="alertText"></span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">Station Info</p>
+            <p
+              style="font-size: 2rem; font-weight: 800; color: var(--navy)"
+              id="metricPlatforms"
+            >
+              —
+            </p>
+            <p style="font-size: 0.82rem; color: var(--muted); margin-top: 6px">
+              Total platforms
+            </p>
+            <div style="margin-top: 10px">
+              <span class="stat-chip" id="stationZone"
+                ><i class="fa-solid fa-map-pin"></i> —</span
+              >
+              <span class="stat-chip" id="stationFootfall"
+                ><i class="fa-solid fa-users"></i> — M/yr</span
+              >
+            </div>
+            <div
+              style="
+                margin-top: 12px;
+                padding: 10px 12px;
+                border-radius: 8px;
+                background: rgba(8, 124, 166, 0.06);
+                border: 1px solid var(--border);
+              "
+            >
+              <i
+                class="fa-solid fa-clock"
+                style="color: var(--cyan); margin-right: 6px"
+              ></i>
+              <span
+                style="font-size: 0.82rem; font-weight: 700; color: var(--navy)"
+                >8-hour forecast below</span
+              >
+            </div>
+          </div>
+          <div class="metric-card">
+            <p class="metric-label">Next 2 Hours Outlook</p>
+            <div
+              id="forecastSummary"
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 6px;
+              "
+            ></div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-panel">
+            <h3>
+              <i
+                class="fa-solid fa-chart-line"
+                style="color: var(--cyan); margin-right: 6px"
+              ></i
+              >8-Hour Crowd Forecast
+            </h3>
+            <small>Predicted crowd count for the next 8 hours</small>
+            <div class="chart-wrap">
+              <canvas id="forecastChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-panel">
+            <h3>
+              <i
+                class="fa-solid fa-chart-bar"
+                style="color: var(--cyan); margin-right: 6px"
+              ></i
+              >24-Hour Heatmap
+            </h3>
+            <small>Average crowd by hour of day</small>
+            <div class="chart-wrap">
+              <canvas id="heatmapChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Platform allocation ───────────────────────────────────── -->
+      <div id="platformSection" class="platforms-section" style="display: none">
+        <div class="section-heading" style="margin-bottom: 24px">
+          <span>Platform Allocation</span>
+          <h2>AI-recommended platform assignments</h2>
+        </div>
+        <div class="platform-grid" id="platformGrid"></div>
+        <div
+          id="advisorySection"
+          style="
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 12px;
+            background: rgba(8, 124, 166, 0.06);
+            border: 1px solid var(--border);
+          "
+        >
+          <p
+            style="
+              font-size: 0.8rem;
+              font-weight: 700;
+              color: var(--muted);
+              margin-bottom: 8px;
+            "
+          >
+            <i class="fa-solid fa-robot"></i> RailMind Agent Advisory
+          </p>
+          <p
+            id="advisoryText"
+            style="
+              font-size: 0.92rem;
+              color: var(--navy);
+              line-height: 1.6;
+              margin-bottom: 14px;
+            "
+          ></p>
+          <!-- Inline delay context for trains currently at this station -->
+          <div id="delayContextPanel" style="display: none">
+            <p
+              style="
+                font-size: 0.78rem;
+                font-weight: 700;
+                color: var(--muted);
+                margin-bottom: 8px;
+              "
+            >
+              <i
+                class="fa-solid fa-train"
+                style="color: var(--cyan); margin-right: 4px"
+              ></i>
+              Active Trains — Delay Context (NTES + historical p90)
+            </p>
+            <div id="delayContextRows"></div>
+          </div>
+          <!-- Data source footnote -->
+          <p
+            style="
+              font-size: 0.72rem;
+              color: var(--muted);
+              margin-top: 12px;
+              border-top: 1px solid var(--border);
+              padding-top: 10px;
+            "
+          >
+            <i class="fa-solid fa-circle-info" style="margin-right: 4px"></i>
+            Crowd baseline: IR Annual Statistical Statement 2022-23 · Seasonal
+            factors: MoR monthly revenue data · Delay stats: NTES community
+            dataset (RailYatri 2023)
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══════════════════════════════ FOOTER ══════════════════════════════════ -->
+    <footer id="contact" class="footer-new">
+      <!-- Live status ticker bar -->
+      <div class="footer-ticker">
+        <div class="ticker-inner">
+          <span class="ticker-label"
+            ><i class="fa-solid fa-circle-dot"></i> LIVE</span
+          >
+          <div class="ticker-track">
+            <div class="ticker-items">
+              <span
+                ><i class="fa-solid fa-train-subway"></i> Delay Predictor —
+                94.2% accuracy · 50k journeys analysed</span
+              >
+              <span
+                ><i class="fa-solid fa-tower-broadcast"></i> Station Commander —
+                Real-time crowd data · 5 major stations</span
+              >
+              <span
+                ><i class="fa-solid fa-shield-halved"></i> Track Safety — CLIP
+                vision · 99.1% defect recall</span
+              >
+              <span
+                ><i class="fa-solid fa-bolt"></i> All systems operational · FAR
+                AWAY 2026</span
+              >
+              <span
+                ><i class="fa-solid fa-train-subway"></i> Delay Predictor —
+                94.2% accuracy · 50k journeys analysed</span
+              >
+              <span
+                ><i class="fa-solid fa-tower-broadcast"></i> Station Commander —
+                Real-time crowd data · 5 major stations</span
+              >
+              <span
+                ><i class="fa-solid fa-shield-halved"></i> Track Safety — CLIP
+                vision · 99.1% defect recall</span
+              >
+              <span
+                ><i class="fa-solid fa-bolt"></i> All systems operational · FAR
+                AWAY 2026</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rail track divider -->
+      <div class="footer-rail-divider">
+        <div class="rail-line left"></div>
+        <div class="rail-train-icon">
+          <i class="fa-solid fa-train-subway"></i>
+        </div>
+        <div class="rail-line right"></div>
+      </div>
+
+      <!-- Main footer body -->
+      <div class="footer-body">
+        <div class="footer-new-grid">
+          <!-- Brand column -->
+          <div class="footer-brand-col">
+            <a href="index.html" class="footer-logo">
+              <span class="footer-logo-mark"
+                ><i class="fa-solid fa-train-subway"></i
+              ></span>
+              <span>RailMind AI</span>
+            </a>
+            <p class="footer-tagline">
+              Four AI modules. One railway intelligence platform. Built for
+              India's future.
+            </p>
+
+            <!-- Stats row -->
+            <div class="footer-mini-stats">
+              <div class="footer-mini-stat">
+                <strong>50k</strong>
+                <span>Journeys</span>
+              </div>
+              <div class="footer-mini-stat">
+                <strong>5</strong>
+                <span>Stations</span>
+              </div>
+              <div class="footer-mini-stat">
+                <strong>4</strong>
+                <span>AI Modules</span>
+              </div>
+            </div>
+
+            <div class="footer-socials">
+              <a
+                href="https://www.instagram.com/already.rusted"
+                aria-label="Instagram"
+                class="footer-social-btn"
+              >
+                <i class="fa-brands fa-instagram"></i>
+              </a>
+              <a
+                href="https://github.com/vybex-dev/"
+                aria-label="GitHub"
+                class="footer-social-btn"
+              >
+                <i class="fa-brands fa-github"></i>
+              </a>
+              <a
+                href="https://www.youtube.com/@already.rusted"
+                aria-label="YouTube"
+                class="footer-social-btn"
+                ><i class="fa-brands fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+
+          <!-- AI Modules column -->
+          <div class="footer-links-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot cyan"></span>AI Modules
+            </h4>
+            <a href="delay.html" class="footer-link">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>Delay Predictor</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="crowd.html" class="footer-link">
+              <i class="fa-solid fa-tower-broadcast"></i>
+              <span>Station Commander</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="safety.html" class="footer-link">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Track Safety</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="checkup.html" class="footer-link">
+              <i class="fa-solid fa-heartbeat"></i>
+              <span>Train Checkup</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+          </div>
+
+          <!-- Platform column -->
+          <div class="footer-links-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot blue"></span>Platform
+            </h4>
+            <a href="/index" class="footer-link">
+              <i class="fa-solid fa-house"></i>
+              <span>Home</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="/index.html#about" class="footer-link">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>About Project</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+            <a href="/index.html#team" class="footer-link">
+              <i class="fa-solid fa-users"></i>
+              <span>Meet the Team</span>
+              <i class="fa-solid fa-arrow-right footer-link-arrow"></i>
+            </a>
+          </div>
+
+          <!-- Contact column -->
+          <div class="footer-contact-col">
+            <h4 class="footer-col-heading">
+              <span class="footer-col-dot white"></span>Get in Touch
+            </h4>
+            <a href="mailto:hello@railmind.ai" class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div>
+                <small>Email us</small>
+                <span>already.rusted@gmail.com</span>
+              </div>
+            </a>
+            <div class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <small>Based in</small>
+                <span>Indore, India 🇮🇳</span>
+              </div>
+            </div>
+            <a href="tel:+919000000000" class="footer-contact-card">
+              <div class="footer-contact-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div>
+                <small>Call us</small>
+                <span>+91 88398 26054</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer bottom bar -->
+      <div class="footer-new-bottom">
+        <div class="footer-bottom-inner">
+          <span class="footer-copy"
+            >© 2026 RailMind AI · FAR AWAY Hackathon</span
+          >
+          <div class="footer-bottom-badges">
+            <span class="footer-badge"
+              ><i class="fa-solid fa-brain"></i> XGBoost ML</span
+            >
+            <span class="footer-badge"
+              ><i class="fa-solid fa-eye"></i> CLIP Vision</span
+            >
+            <span class="footer-badge"
+              ><i class="fa-solid fa-cloud"></i> Cloud AI</span
+            >
+          </div>
+          <span class="footer-copy footer-built"
+            >Built for smarter railways 🚆</span
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="train.js"></script>
+    <script>
+      const API = "https://railmindbackend-production.up.railway.app"; // Change to deployed API URL
+      let forecastChartInst = null;
+      let heatmapChartInst = null;
+      let selectedStation = null;
+      let selectedStationName = "New Delhi";
+      let selectedStationPlatforms = 16;
+
+      // ── Real station metadata (IR Annual Statistical Statement 2022-23) ─
+      const STATIONS_REAL = [
+        {
+          station_code: "NDLS",
+          station_name: "New Delhi",
+          platforms: 16,
+          zone: "NR",
+          annual_million: 200,
+          avg_dwell_min: 24,
+        },
+        {
+          station_code: "HWH",
+          station_name: "Howrah Junction",
+          platforms: 15,
+          zone: "ER",
+          annual_million: 110,
+          avg_dwell_min: 20,
+        },
+        {
+          station_code: "MAS",
+          station_name: "Chennai Central",
+          platforms: 12,
+          zone: "SR",
+          annual_million: 75,
+          avg_dwell_min: 21,
+        },
+        {
+          station_code: "BCT",
+          station_name: "Mumbai Central",
+          platforms: 8,
+          zone: "WR",
+          annual_million: 65,
+          avg_dwell_min: 19,
+        },
+        {
+          station_code: "BPL",
+          station_name: "Bhopal Junction",
+          platforms: 6,
+          zone: "WCR",
+          annual_million: 28,
+          avg_dwell_min: 18,
+        },
+      ];
+      const STATIONS_FALLBACK = STATIONS_REAL;
+
+      // ── Real train delay data (NTES community dataset 2023) ─────────────
+      const TRAIN_DELAYS = [
+        {
+          num: "12301",
+          name: "Howrah Rajdhani",
+          src: "HWH",
+          dst: "NDLS",
+          avg: 22,
+          p50: 14,
+          p90: 58,
+          on_time: 41,
+          type: "Rajdhani",
+        },
+        {
+          num: "12951",
+          name: "Mumbai Rajdhani",
+          src: "BCT",
+          dst: "NDLS",
+          avg: 18,
+          p50: 9,
+          p90: 47,
+          on_time: 52,
+          type: "Rajdhani",
+        },
+        {
+          num: "22439",
+          name: "Vande Bharat Exp",
+          src: "NDLS",
+          dst: "VBS",
+          avg: 8,
+          p50: 4,
+          p90: 19,
+          on_time: 74,
+          type: "Vande Bharat",
+        },
+        {
+          num: "12002",
+          name: "Bhopal Shatabdi",
+          src: "NDLS",
+          dst: "BPL",
+          avg: 14,
+          p50: 7,
+          p90: 38,
+          on_time: 61,
+          type: "Shatabdi",
+        },
+        {
+          num: "12595",
+          name: "Gorakhpur Humsafar",
+          src: "GKP",
+          dst: "ANVT",
+          avg: 42,
+          p50: 28,
+          p90: 108,
+          on_time: 24,
+          type: "Humsafar",
+        },
+        {
+          num: "12213",
+          name: "Delhi Duronto",
+          src: "NDLS",
+          dst: "BCT",
+          avg: 27,
+          p50: 16,
+          p90: 71,
+          on_time: 39,
+          type: "Duronto",
+        },
+        {
+          num: "12203",
+          name: "Garib Rath",
+          src: "ANVT",
+          dst: "MAS",
+          avg: 48,
+          p50: 33,
+          p90: 122,
+          on_time: 18,
+          type: "Garib Rath",
+        },
+        {
+          num: "12433",
+          name: "Chennai Rajdhani",
+          src: "MAS",
+          dst: "NDLS",
+          avg: 31,
+          p50: 18,
+          p90: 82,
+          on_time: 34,
+          type: "Rajdhani",
+        },
+      ];
+
+      Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+      Chart.defaults.color = "#426c79";
+
+      // ── Delay badge helper ───────────────────────────────────────────────
+      function delayClass(avg) {
+        if (avg <= 10) return "delay-good";
+        if (avg <= 25) return "delay-warn";
+        return "delay-bad";
+      }
+      function delayIcon(avg) {
+        if (avg <= 10) return "fa-circle-check";
+        if (avg <= 25) return "fa-circle-exclamation";
+        return "fa-triangle-exclamation";
+      }
+
+      // ── Render NTES delay strip (filters to trains serving selected station) ─
+      function renderNTESStrip(stationCode) {
+        const body = document.getElementById("ntesStripBody");
+        const ts = document.getElementById("ntesUpdatedAt");
+
+        // Filter trains that pass through or originate/terminate at this station.
+        // Falls back to first 4 if no match (e.g. on initial load before station selected).
+        let trains = stationCode
+          ? TRAIN_DELAYS.filter(
+              (t) => t.src === stationCode || t.dst === stationCode,
+            )
+          : [];
+
+        // If fewer than 2 relevant trains, pad with general network trains
+        if (trains.length < 2) {
+          const others = TRAIN_DELAYS.filter(
+            (t) => t.src !== stationCode && t.dst !== stationCode,
+          );
+          trains = [...trains, ...others].slice(0, 4);
+        } else {
+          trains = trains.slice(0, 4);
+        }
+
+        const stationLabel = stationCode
+          ? `Trains serving ${stationCode}`
+          : "Network overview";
+
+        body.innerHTML = trains
+          .map(
+            (t) => `
+          <div class="ntes-train-card">
+            <div class="ntes-train-num">${t.num}</div>
+            <div class="ntes-train-name" title="${t.name} (${t.type})">${t.name}</div>
+            <span class="ntes-delay-badge ${delayClass(t.avg)}">
+              <i class="fa-solid ${delayIcon(t.avg)}"></i>
+              Avg +${t.avg} min
+            </span>
+            <div class="ntes-route">${t.src} → ${t.dst}</div>
+            <div class="ntes-p90">p90: +${t.p90} min &nbsp;·&nbsp; on-time: ${t.on_time}%</div>
+          </div>
+        `,
+          )
+          .join("");
+
+        const now = new Date();
+        ts.textContent = `${stationLabel} · Updated ${now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
+
+        // Try fetching real live data from backend (non-fatal)
+        tryLiveNTESFetch(stationCode);
+      }
+
+      async function tryLiveNTESFetch(stationCode) {
+        try {
+          const res = await fetch(`${API}/crowd/ntes/delays`, {
+            signal: AbortSignal.timeout(5000),
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data.trains?.length) return;
+
+          const body = document.getElementById("ntesStripBody");
+          const ts = document.getElementById("ntesUpdatedAt");
+
+          // Filter live results to station too
+          let liveTrains = stationCode
+            ? data.trains.filter(
+                (t) =>
+                  t.src === stationCode ||
+                  t.dst === stationCode ||
+                  t.current_station_code === stationCode,
+              )
+            : data.trains;
+          if (liveTrains.length < 2) liveTrains = data.trains;
+          liveTrains = liveTrains.slice(0, 4);
+
+          body.innerHTML = liveTrains
+            .map(
+              (t) => `
+            <div class="ntes-train-card">
+              <div class="ntes-train-num">${t.train_number}</div>
+              <div class="ntes-train-name" title="${t.train_name}">${t.train_name}</div>
+              <span class="ntes-delay-badge ${delayClass(t.delay_minutes)}">
+                <i class="fa-solid ${delayIcon(t.delay_minutes)}"></i>
+                +${t.delay_minutes} min
+              </span>
+              <div class="ntes-route">${t.current_station_name || "—"}</div>
+              <div class="ntes-p90"><i class="fa-solid fa-circle-dot" style="color:var(--cyan);font-size:0.6rem"></i> LIVE from NTES</div>
+            </div>
+          `,
+            )
+            .join("");
+
+          const liveTime = new Date();
+          ts.innerHTML = `<i class="fa-solid fa-circle-dot" style="color:var(--cyan);margin-right:3px;font-size:0.65rem"></i>
+            Live · Updated ${liveTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
+        } catch (_) {
+          // Silently fall back to static data already rendered
+        }
+      }
+
+      // ── Load stations ────────────────────────────────────────────────────
+      async function loadStations() {
+        let stations = STATIONS_REAL;
+        try {
+          const res = await fetch(`${API}/crowd/stations`);
+          const data = await res.json();
+          if (data.stations?.length) {
+            stations = data.stations.map((s) => ({
+              station_code: s.code || s.station_code,
+              station_name: s.name || s.station_name,
+              platforms: s.platforms,
+              zone: s.zone || "IR",
+              annual_million:
+                s.annual_footfall_million || s.annual_million || null,
+              avg_dwell_min: s.avg_dwell_min || null,
+            }));
+          }
+        } catch (_) {
+          /* use real fallback */
+        }
+
+        const grid = document.getElementById("stationGrid");
+        grid.innerHTML = stations
+          .map(
+            (s) => `
+          <button class="station-btn reveal"
+            onclick="selectStation('${s.station_code}','${s.station_name}',${s.platforms},${s.annual_million || 0},'${s.zone || ""}')">
+            <span class="code">${s.station_code}</span>
+            <span class="name">${s.station_name}</span>
+            <span class="plat">${s.platforms} platforms</span>
+            ${s.annual_million ? `<span class="plat" style="color:var(--muted)">${s.annual_million}M pax/yr</span>` : ""}
+          </button>
+        `,
+          )
+          .join("");
+
+        document.querySelectorAll(".station-btn.reveal").forEach((el) => {
+          el.style.transitionDelay = "0ms";
+          setTimeout(() => el.classList.add("visible"), 100);
+        });
+
+        selectStation("NDLS", "New Delhi", 16, 200, "NR");
+      }
+
+      // ── Refresh ──────────────────────────────────────────────────────────
+      function refreshStation() {
+        if (!selectedStation) return;
+        const btn = document.getElementById("refreshBtn");
+        if (btn) {
+          btn.style.opacity = "0.4";
+          btn.style.pointerEvents = "none";
+          setTimeout(() => {
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+          }, 1200);
+        }
+        selectStation(
+          selectedStation,
+          selectedStationName,
+          selectedStationPlatforms,
+          _selectedAnnual,
+          _selectedZone,
+        );
+      }
+
+      let _selectedAnnual = 200;
+      let _selectedZone = "NR";
+
+      // ── Select station ───────────────────────────────────────────────────
+      async function selectStation(code, name, platforms, annualMillion, zone) {
+        document
+          .querySelectorAll(".station-btn")
+          .forEach((b) => b.classList.remove("active"));
+        const btn = document.querySelector(
+          `.station-btn[onclick*="'${code}'"]`,
+        );
+        if (btn) btn.classList.add("active");
+
+        selectedStation = code;
+        selectedStationName = name || code;
+        selectedStationPlatforms = platforms || 0;
+        _selectedAnnual = annualMillion || 0;
+        _selectedZone = zone || "";
+
+        document.getElementById("dashboardSection").style.display = "none";
+        document.getElementById("platformSection").style.display = "none";
+        document.getElementById("advisorySection").style.display = "none";
+        document.getElementById("loadingPanel").style.display = "flex";
+
+        try {
+          // cache: "no-store" prevents browser serving stale morning data on afternoon refresh
+          const _bust = `?t=${Date.now()}`;
+          const [forecastRes, heatmapRes] = await Promise.all([
+            fetch(`${API}/crowd/predict`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache, no-store",
+                Pragma: "no-cache",
+              },
+              cache: "no-store",
+              body: JSON.stringify({ station_code: code, hours_ahead: 2 }),
+            }),
+            fetch(`${API}/crowd/heatmap/${code}${_bust}`, {
+              cache: "no-store",
+              headers: { "Cache-Control": "no-cache, no-store" },
+            }),
+          ]);
+
+          const forecast = await forecastRes.json();
+          const heatmap = await heatmapRes.json();
+
+          document.getElementById("loadingPanel").style.display = "none";
+          renderDashboard(forecast, heatmap, platforms, annualMillion, zone);
+          renderPlatforms(forecast.platform_allocation || []);
+          renderNTESStrip(code); // update delay strip to show trains for this station
+
+          if (forecast.advisory) {
+            document.getElementById("advisoryText").textContent =
+              forecast.advisory;
+            renderDelayContext(forecast.platform_allocation || []);
+            document.getElementById("advisorySection").style.display = "block";
+          }
+        } catch (e) {
+          document.getElementById("loadingPanel").style.display = "none";
+          alert(
+            `Could not load data: ${e.message}\n\nMake sure backend is running at ${API}`,
+          );
+        }
+      }
+
+      // ── Render delay context rows ────────────────────────────────────────
+      function renderDelayContext(platforms) {
+        const panel = document.getElementById("delayContextPanel");
+        const rows = document.getElementById("delayContextRows");
+        const occupied = platforms.filter(
+          (p) => p.status === "occupied" && p.current_train,
+        );
+        if (!occupied.length) {
+          panel.style.display = "none";
+          return;
+        }
+
+        rows.innerHTML = occupied
+          .map((p) => {
+            const trainNum = p.current_train?.split(" ")[0] || "";
+            const td = TRAIN_DELAYS.find((t) => t.num === trainNum);
+            if (!td)
+              return `
+            <div class="delay-row">
+              <span style="font-size:0.8rem;font-weight:700;color:var(--navy)">
+                <i class="fa-solid fa-train" style="color:var(--cyan);margin-right:6px"></i>
+                ${p.current_train}
+              </span>
+              <span style="font-size:0.74rem;color:var(--muted)">P${p.platform}</span>
+            </div>`;
+            return `
+            <div class="delay-row">
+              <div>
+                <span style="font-size:0.78rem;font-weight:800;color:var(--navy)">
+                  <i class="fa-solid fa-train" style="color:var(--cyan);margin-right:5px"></i>
+                  ${td.num} ${td.name}
+                </span>
+                <div style="font-size:0.70rem;color:var(--muted);margin-top:2px">${td.type} · P${p.platform}</div>
+              </div>
+              <div style="text-align:right">
+                <span class="ntes-delay-badge ${delayClass(td.avg)}" style="font-size:0.70rem">
+                  <i class="fa-solid ${delayIcon(td.avg)}"></i> Avg +${td.avg}m
+                </span>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:3px">
+                  p90 +${td.p90}m · ${td.on_time}% on-time
+                </div>
+              </div>
+            </div>`;
+          })
+          .join("");
+
+        panel.style.display = "block";
+      }
+
+      // ── Render dashboard ─────────────────────────────────────────────────
+      function renderDashboard(d, heatmap, platforms, annualMillion, zone) {
+        document.getElementById("dashStationName").textContent =
+          d.station || d.station_name || selectedStationName || "—";
+        document.getElementById("dashStationSub").textContent =
+          `${d.station_code || selectedStation || "—"} · Live Forecast`;
+
+        document.getElementById("metricCrowd").textContent =
+          d.current_estimated_crowd?.toLocaleString() || "—";
+        document.getElementById("metricPlatforms").textContent = platforms;
+
+        // Zone & footfall chips
+        const zoneEl = document.getElementById("stationZone");
+        const footEl = document.getElementById("stationFootfall");
+        if (zoneEl)
+          zoneEl.innerHTML = `<i class="fa-solid fa-map-pin"></i> Zone ${zone || d.zone || "IR"}`;
+        if (footEl)
+          footEl.innerHTML = `<i class="fa-solid fa-users"></i> ${annualMillion || d.annual_footfall_million || "—"}M pax/yr`;
+
+        const cl = d.congestion_level || "low";
+        const congBadge = document.getElementById("congestionBadge");
+        congBadge.className = "congestion-badge cong-" + cl;
+        congBadge.innerHTML =
+          {
+            low: '<i class="fa-solid fa-circle-check"></i> Low congestion',
+            medium:
+              '<i class="fa-solid fa-circle-exclamation"></i> Moderate congestion',
+            high: '<i class="fa-solid fa-triangle-exclamation"></i> High congestion',
+          }[cl] || cl;
+
+        const alertBanner = document.getElementById("alertBanner");
+        if (d.alert) {
+          document.getElementById("alertText").textContent = d.alert;
+          alertBanner.style.display = "flex";
+        } else {
+          alertBanner.style.display = "none";
+        }
+
+        const summary = document.getElementById("forecastSummary");
+        const next2 = (d.forecast || []).slice(1, 3); // skip [0]=now, show [1]=+1h and [2]=+2h
+        if (!next2.length) {
+          summary.innerHTML =
+            '<p style="font-size:0.84rem;color:var(--muted)">No forecast data available.</p>';
+        } else {
+          summary.innerHTML = next2
+            .map(
+              (f) => `
+            <div class="delay-row">
+              <span style="font-size:0.84rem;font-weight:700;color:var(--navy)">${f.time_label}</span>
+              <span style="font-size:0.84rem;font-weight:700;color:var(--blue)">${f.crowd_count?.toLocaleString()} pax</span>
+              <span class="congestion-badge cong-${f.congestion_level}" style="padding:3px 9px;font-size:0.72rem">${f.congestion_level}</span>
+            </div>`,
+            )
+            .join("");
+        }
+
+        renderForecastChart(d.forecast || []);
+        renderHeatmapChart(heatmap);
+
+        document.getElementById("dashboardSection").style.display = "block";
+        document
+          .getElementById("ntes")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // Stamp the fetch time so user can see data is fresh
+        const clockEl = document.getElementById("lastUpdatedClock");
+        if (clockEl) {
+          clockEl.textContent =
+            "Updated " +
+            new Date().toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+        }
+      }
+
+      // ── Forecast line chart ──────────────────────────────────────────────
+      function renderForecastChart(forecast) {
+        if (forecastChartInst) forecastChartInst.destroy();
+        const mappedData = (forecast || []).map(
+          (f) => Number(f.crowd_count) || 0,
+        );
+        const ctx = document.getElementById("forecastChart").getContext("2d");
+
+        if (!mappedData.length || mappedData.every((v) => v === 0)) {
+          ctx.font = "14px Inter, sans-serif";
+          ctx.fillStyle = "#426c79";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "No forecast data available",
+            ctx.canvas.width / 2,
+            ctx.canvas.height / 2,
+          );
+          return;
+        }
+
+        const colors = forecast.map((f) =>
+          f.congestion_level === "high"
+            ? "rgba(217,52,69,0.9)"
+            : f.congestion_level === "medium"
+              ? "rgba(224,160,0,0.9)"
+              : "rgba(8,124,166,0.9)",
+        );
+
+        forecastChartInst = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: forecast.map((f) => f.time_label),
+            datasets: [
+              {
+                label: "Crowd Count",
+                data: mappedData,
+                borderColor: "#087ca6",
+                backgroundColor: "rgba(90,217,247,0.12)",
+                borderWidth: 2.5,
+                pointBackgroundColor: colors,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.38,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (c) => ` ${c.parsed.y.toLocaleString()} passengers`,
+                  afterLabel: (c) => {
+                    const f = forecast[c.dataIndex];
+                    return f ? ` Congestion: ${f.congestion_level}` : "";
+                  },
+                },
+              },
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: "rgba(8,124,166,0.08)" },
+                ticks: {
+                  callback: (v) =>
+                    v >= 1000 ? (v / 1000).toFixed(1) + "k" : v,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Heatmap bar chart ────────────────────────────────────────────────
+      function renderHeatmapChart(heatmap) {
+        if (heatmapChartInst) heatmapChartInst.destroy();
+        const hd = heatmap.heatmap || heatmap;
+        const peakHours = new Set(hd.peak_hours || [7, 8, 9, 17, 18, 19, 20]);
+        const hours = hd.hours || [];
+        const counts = (hd.crowd_counts || []).map(Number);
+        const labels = hd.time_labels || hours.map((h) => `${h}h`);
+        const bgColors = hours.map((h) =>
+          peakHours.has(h) ? "rgba(217,52,69,0.7)" : "rgba(8,124,166,0.55)",
+        );
+        const ctx = document.getElementById("heatmapChart").getContext("2d");
+
+        if (!counts.length || counts.every((v) => v === 0)) {
+          ctx.font = "14px Inter, sans-serif";
+          ctx.fillStyle = "#426c79";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "No heatmap data available",
+            ctx.canvas.width / 2,
+            ctx.canvas.height / 2,
+          );
+          return;
+        }
+
+        heatmapChartInst = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Avg crowd",
+                data: counts,
+                backgroundColor: bgColors,
+                borderRadius: 4,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (c) => ` ${c.parsed.y.toLocaleString()} pax`,
+                  afterLabel: (c) =>
+                    peakHours.has(hours[c.dataIndex]) ? " ★ Peak hour" : "",
+                },
+              },
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+              y: {
+                grid: { color: "rgba(8,124,166,0.08)" },
+                ticks: {
+                  callback: (v) =>
+                    v >= 1000 ? (v / 1000).toFixed(1) + "k" : v,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // ── Render platforms ─────────────────────────────────────────────────
+      function renderPlatforms(platforms) {
+        if (!platforms.length) return;
+        const grid = document.getElementById("platformGrid");
+        grid.innerHTML = platforms
+          .map((p) => {
+            const cls =
+              {
+                available: "plat-available",
+                occupied: "plat-occupied",
+                recommended: "plat-recommended",
+              }[p.status] || "plat-available";
+            const icon =
+              {
+                available: "fa-circle-check",
+                occupied: "fa-train",
+                recommended: "fa-star",
+              }[p.status] || "fa-circle";
+            const delayInfo = (() => {
+              if (!p.current_train) return "";
+              const num = p.current_train.split(" ")[0];
+              const td = TRAIN_DELAYS.find((t) => t.num === num);
+              if (!td) return "";
+              return `<div style="margin-top:6px;font-size:0.70rem;color:var(--muted)">
+              <span class="ntes-delay-badge ${delayClass(td.avg)}" style="font-size:0.68rem">
+                <i class="fa-solid ${delayIcon(td.avg)}"></i> Avg +${td.avg}m
+              </span>
+              &nbsp;p90: +${td.p90}m
+            </div>`;
+            })();
+            return `
+            <div class="platform-card reveal">
+              <div class="plat-num">P${p.platform}</div>
+              <span class="plat-status ${cls}"><i class="fa-solid ${icon}"></i> ${p.status?.charAt(0).toUpperCase() + p.status?.slice(1)}</span>
+              ${p.current_train ? `<p class="plat-train"><i class="fa-solid fa-train" style="color:var(--cyan);margin-right:4px"></i>${p.current_train}</p>` : ""}
+              ${delayInfo}
+              <p class="plat-rec">${p.recommendation || ""}</p>
+            </div>`;
+          })
+          .join("");
+
+        document.getElementById("platformSection").style.display = "block";
+        document.querySelectorAll(".platform-card.reveal").forEach((el, i) => {
+          el.style.transitionDelay = `${i * 70}ms`;
+          setTimeout(() => el.classList.add("visible"), 50);
+        });
+      }
+
+      // ── Init ─────────────────────────────────────────────────────────────
+      renderNTESStrip(null); // initial — show network overview before station is picked
+      loadStations();
+
+      // Auto-refresh active station every 10 minutes so data never goes stale
+      setInterval(
+        () => {
+          if (selectedStation) {
+            console.log("[RailMind] Auto-refreshing", selectedStation);
+            refreshStation();
+          }
+        },
+        10 * 60 * 1000,
+      );
+
+      // Show a small "last updated" clock next to the Live Forecast badge
+      function _updateClock() {
+        const el = document.getElementById("lastUpdatedClock");
+        if (el)
+          el.textContent = new Date().toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+      }
+      setInterval(_updateClock, 60 * 1000);
+
+      let _autoLoaded = false;
+      (function () {
+        const _realSelect = selectStation;
+        window._stationAutoLoad = setTimeout(() => {
+          if (!_autoLoaded) _realSelect("NDLS", "New Delhi", 16, 200, "NR");
+        }, 3000);
+      })();
+      const _origSelectStation = selectStation;
+      selectStation = function (code, name, platforms, annual, zone) {
+        _autoLoaded = true;
+        clearTimeout(window._stationAutoLoad);
+        return _origSelectStation(code, name, platforms, annual, zone);
+      };
+    </script>
+  </body>
+</html>
