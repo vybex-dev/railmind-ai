@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="icon.png" alt="RailMind AI Icon" width="100" />
+<img src="/railmind-frontend/icon.png" alt="RailMind AI Icon" width="100" />
 
 # 🚆 RailMind AI
 
@@ -51,7 +51,7 @@
 
 **RailMind AI** is a four-module, AI-powered railway intelligence platform built for the **FAR AWAY 2026 Hackathon** under the **Railways** theme. It addresses the most critical operational challenges facing Indian Railways today: unpredictable delays, unmanaged station crowds, undetected track defects, and reactive (not predictive) train maintenance.
 
-RailMind AI moves railway operations from *reactive firefighting* to *proactive intelligence* — combining machine learning, computer vision, large language models, and intelligent rule-based engines into a single unified platform with a polished frontend and a FastAPI backend.
+RailMind AI moves railway operations from _reactive firefighting_ to _proactive intelligence_ — combining machine learning, computer vision, large language models, and intelligent rule-based engines into a single unified platform with a polished frontend and a FastAPI backend.
 
 ---
 
@@ -72,12 +72,12 @@ These failures cost lives, time, and billions in operational losses each year.
 
 RailMind AI delivers **four specialized AI modules** under one unified interface, each solving a distinct problem:
 
-| Module | Problem Solved | AI Approach |
-|---|---|---|
-| 🕐 **Delay Predictor** | Unpredictable train delays | XGBoost ML on 50k journey records + LLM advisory agent |
-| 📡 **Station Commander** | Unmanaged crowd surges | Real-time crowd density forecasting + LLM advisory agent |
-| 🛡️ **Track Safety** | Undetected track defects | CLIP vision AI + defect classification + LLM safety alerts |
-| 💓 **Train Checkup** | Reactive maintenance scheduling | AI-driven weighted sensor risk scoring engine |
+| Module                   | Problem Solved                  | AI Approach                                                |
+| ------------------------ | ------------------------------- | ---------------------------------------------------------- |
+| 🕐 **Delay Predictor**   | Unpredictable train delays      | XGBoost ML on 50k journey records + LLM advisory agent     |
+| 📡 **Station Commander** | Unmanaged crowd surges          | Real-time crowd density forecasting + LLM advisory agent   |
+| 🛡️ **Track Safety**      | Undetected track defects        | CLIP vision AI + defect classification + LLM safety alerts |
+| 💓 **Train Checkup**     | Reactive maintenance scheduling | AI-driven weighted sensor risk scoring engine              |
 
 Together, these modules form a **continuous intelligence loop**: data flows from raw sensors, live feeds, and uploaded images through AI engines (ML models, computer vision, and an LLM agent) to actionable, human-readable alerts on a unified dashboard — enabling smarter, faster, safer railway operations.
 
@@ -90,16 +90,19 @@ Together, these modules form a **continuous intelligence loop**: data flows from
 Predicts train delays before they happen using a trained **XGBoost ML model** on 50,000 historical journey records, served via a FastAPI inference endpoint.
 
 **Inputs:**
+
 - Train number, source & destination stations
 - Departure hour, day of week, month
 - Route and journey context
 
 **Output:**
+
 - Predicted delay in minutes, confidence tier, and delay category (on-time / slight / moderate / severe)
 - AI-generated passenger advisory, step-by-step reasoning, alternative train suggestions, and urgency level — produced by the **RailMind Agent** (Groq / Llama 3.1)
 - Live streaming of agent reasoning via Server-Sent Events
 
 **Key Stats:**
+
 - 🎯 **94.2%** prediction accuracy
 - 📊 **50,000** training journeys
 - ⚡ Sub-second inference
@@ -111,9 +114,10 @@ Predicts train delays before they happen using a trained **XGBoost ML model** on
 Real-time crowd density forecasting for major Indian railway stations with up to a **24-hour lookahead**, smart platform allocation guidance, and AI-generated operational advisories.
 
 **Stations covered:**
-Mumbai CST · New Delhi · Howrah · Chennai Central · Bengaluru City *(and more via the station catalogue)*
+Mumbai CST · New Delhi · Howrah · Chennai Central · Bengaluru City _(and more via the station catalogue)_
 
 **Features:**
+
 - Live crowd density estimate per station
 - Hourly forecast chart (Chart.js) for the requested lookahead window
 - 24-hour crowd heatmap per station
@@ -131,6 +135,7 @@ Mumbai CST · New Delhi · Howrah · Chennai Central · Bengaluru City *(and mor
 Upload a track photo and get an instant **CLIP vision AI** defect classification, paired with a formal AI-generated operations alert — no specialist required on-site.
 
 **Defect Classes Detected (6 total):**
+
 1. Rail Surface Cracks
 2. Missing / Broken Bolts
 3. Rail Breaks
@@ -139,6 +144,7 @@ Upload a track photo and get an instant **CLIP vision AI** defect classification
 6. No Defect Detected (clear)
 
 **Output:**
+
 - Defect class with confidence score and per-class probability breakdown
 - Risk severity: None / Medium / High / Critical
 - Immediate maintenance action recommendation
@@ -146,6 +152,7 @@ Upload a track photo and get an instant **CLIP vision AI** defect classification
 - Historical defect scan log (last 10 analyses)
 
 **Key Stats:**
+
 - 👁️ **CLIP Vision** backbone
 - 🎯 **99.1%** defect recall rate
 - 6 defect categories classified
@@ -159,20 +166,22 @@ An **AI-driven health scoring engine** that evaluates 13 real-world train sensor
 
 **Subsystems Evaluated:**
 
-| Subsystem | Weight | Sensors |
-|---|---|---|
-| Engine | 25% | Temperature, Oil Level, Fuel Pressure, Vibration |
-| Brakes | 30% | Brake Pressure, Pad Thickness |
-| Wheels | 25% | Wear %, Crack Length |
-| Electrical | 10% | Battery Voltage, Signal Packet Loss |
-| Safety | 10% | Fire Extinguisher Pressure, Exit Open Time, Door Response |
+| Subsystem  | Weight | Sensors                                                   |
+| ---------- | ------ | --------------------------------------------------------- |
+| Engine     | 25%    | Temperature, Oil Level, Fuel Pressure, Vibration          |
+| Brakes     | 30%    | Brake Pressure, Pad Thickness                             |
+| Wheels     | 25%    | Wear %, Crack Length                                      |
+| Electrical | 10%    | Battery Voltage, Signal Packet Loss                       |
+| Safety     | 10%    | Fire Extinguisher Pressure, Exit Open Time, Door Response |
 
 **Risk Scoring:**
+
 - **0–30** → 🟢 LOW RISK — Safe to operate
 - **31–60** → 🟡 MEDIUM RISK — Inspection required
 - **61–100** → 🔴 HIGH RISK — Do not operate
 
 **Critical Safety Overrides** (instant HIGH RISK regardless of score):
+
 - Wheel crack > 2mm
 - Brake pressure < 60 PSI
 - Engine temperature > 105°C
@@ -233,24 +242,24 @@ DelayResponse (JSON) ──▶ rendered on frontend
 
 ### Frontend
 
-| Technology | Purpose |
-|---|---|
-| HTML5 | Semantic page structure across all 5 pages |
-| CSS3 (`train.css`) | Custom design system with CSS variables, glassmorphism, animations |
+| Technology                      | Purpose                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------- |
+| HTML5                           | Semantic page structure across all 5 pages                                |
+| CSS3 (`train.css`)              | Custom design system with CSS variables, glassmorphism, animations        |
 | Vanilla JavaScript (`train.js`) | Scroll reveals, counter animations, nav toggle, Train Checkup risk engine |
-| Chart.js 4.4.1 | Crowd forecasting and defect trend charts |
-| Font Awesome 6.5.1 | Icon library (trains, shields, brains, etc.) |
-| Google Fonts (Inter) | Typography — 400 to 800 weight |
+| Chart.js 4.4.1                  | Crowd forecasting and defect trend charts                                 |
+| Font Awesome 6.5.1              | Icon library (trains, shields, brains, etc.)                              |
+| Google Fonts (Inter)            | Typography — 400 to 800 weight                                            |
 
 ### Backend
 
-| Technology | Purpose |
-|---|---|
-| FastAPI + Uvicorn | REST API framework and ASGI server |
-| XGBoost | Delay prediction ML model (50k training records) |
-| CLIP Vision | Track defect image classification (6 defect classes) |
+| Technology                      | Purpose                                                          |
+| ------------------------------- | ---------------------------------------------------------------- |
+| FastAPI + Uvicorn               | REST API framework and ASGI server                               |
+| XGBoost                         | Delay prediction ML model (50k training records)                 |
+| CLIP Vision                     | Track defect image classification (6 defect classes)             |
 | Groq API (Llama 3.1 8B Instant) | RailMind Agent — converts model outputs into advisories & alerts |
-| Pydantic | Request/response schema validation |
+| Pydantic                        | Request/response schema validation                               |
 
 ### Design System
 
@@ -265,11 +274,11 @@ DelayResponse (JSON) ──▶ rendered on frontend
 
 RailMind AI is split across three repositories for clean separation of concerns. All source code, documentation, and setup instructions required for verification are available in these repos.
 
-| Repository | Purpose | Link |
-|---|---|---|
-| **railmind-ai** *(primary)* | Combined submission repo — overview, docs, presentation, demo links | [github.com/vybex-dev/railmind-ai](https://github.com/vybex-dev/railmind-ai) |
-| **rail.mind.ai** | Frontend source (HTML/CSS/JS, all 5 pages) | [github.com/vybex-dev/rail.mind.ai](https://github.com/vybex-dev/rail.mind.ai) |
-| **rail.mind.backend** | Backend source (FastAPI, ML/CLIP/Agent code) | [github.com/vybex-dev/rail.mind.backend](https://github.com/vybex-dev/rail.mind.backend) |
+| Repository                  | Purpose                                                             | Link                                                                                     |
+| --------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **railmind-ai** _(primary)_ | Combined submission repo — overview, docs, presentation, demo links | [github.com/vybex-dev/railmind-ai](https://github.com/vybex-dev/railmind-ai)             |
+| **rail.mind.ai**            | Frontend source (HTML/CSS/JS, all 5 pages)                          | [github.com/vybex-dev/rail.mind.ai](https://github.com/vybex-dev/rail.mind.ai)           |
+| **rail.mind.backend**       | Backend source (FastAPI, ML/CLIP/Agent code)                        | [github.com/vybex-dev/rail.mind.backend](https://github.com/vybex-dev/rail.mind.backend) |
 
 > For Round 1 evaluation, the **railmind-ai** repository is the canonical submission and links out to the frontend and backend repositories above. Commit history in all three repos is available for review.
 
@@ -322,6 +331,7 @@ railmind-ai/                    (primary repo — overview + docs)
 ### Frontend Setup
 
 Clone the frontend repository:
+
 ```bash
 git clone https://github.com/vybex-dev/rail.mind.ai.git
 cd rail.mind.ai
@@ -330,6 +340,7 @@ cd rail.mind.ai
 The frontend is a **zero-dependency** project — no build tools or package managers required.
 
 **Option A — Open Directly**
+
 ```bash
 # macOS
 open index.html
@@ -342,6 +353,7 @@ start index.html
 ```
 
 **Option B — Local Dev Server (recommended)**
+
 ```bash
 # Using Python
 python3 -m http.server 8080
@@ -349,6 +361,7 @@ python3 -m http.server 8080
 # Using Node.js (npx)
 npx serve .
 ```
+
 Then visit `http://localhost:8080`.
 
 All external dependencies (Font Awesome, Chart.js, Google Fonts) load via CDN — an internet connection is required.
@@ -358,16 +371,19 @@ All external dependencies (Font Awesome, Chart.js, Google Fonts) load via CDN �
 ### Backend Setup
 
 Clone the backend repository:
+
 ```bash
 git clone https://github.com/vybex-dev/rail.mind.backend.git
 cd rail.mind.backend
 ```
 
 #### Prerequisites
+
 - Python 3.10+
 - pip
 
 #### 1. Set up a virtual environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate        # On Windows: venv\Scripts\activate
@@ -375,24 +391,31 @@ pip install -r requirements.txt
 ```
 
 #### 2. (Optional) Configure environment variables
+
 Create a `.env` file in the project root to enable the live AI agent:
+
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
+
 > Get a free key at [console.groq.com](https://console.groq.com/). Without it, the RailMind Agent runs in **mock mode** with curated fallback responses — the API remains fully functional.
 
 #### 3. (Optional) Train the delay prediction model
+
 ```bash
 python -m app.models.train_delay_model
 ```
+
 This generates `saved_models/delay_xgb_model.joblib`, `delay_encoders.joblib`, and `delay_model_info.json`. Without this step, `/delay/predict` uses a rule-based mock predictor — the API remains fully usable for evaluation without any training step.
 
 #### 4. Run the server
+
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
 #### 5. Explore the API
+
 - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 - ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 - Health check: [http://localhost:8000/health](http://localhost:8000/health)
@@ -402,20 +425,23 @@ uvicorn app.main:app --reload --port 8000
 ## 🔌 API Reference
 
 ### Meta
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/` | API welcome message + doc links |
-| GET | `/health` | Module load status (delay, crowd, safety) |
+
+| Method | Endpoint  | Description                               |
+| ------ | --------- | ----------------------------------------- |
+| GET    | `/`       | API welcome message + doc links           |
+| GET    | `/health` | Module load status (delay, crowd, safety) |
 
 ### Delay Prediction — `/delay`
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/delay/trains` | List all trains in the catalogue |
-| POST | `/delay/predict` | Predict delay for a train + AI advisory |
-| GET | `/delay/stats` | Operational statistics |
-| GET | `/delay/agent-stream` | SSE stream of live AI reasoning |
+
+| Method | Endpoint              | Description                             |
+| ------ | --------------------- | --------------------------------------- |
+| GET    | `/delay/trains`       | List all trains in the catalogue        |
+| POST   | `/delay/predict`      | Predict delay for a train + AI advisory |
+| GET    | `/delay/stats`        | Operational statistics                  |
+| GET    | `/delay/agent-stream` | SSE stream of live AI reasoning         |
 
 **Example — `POST /delay/predict`**
+
 ```json
 {
   "train_number": "12301",
@@ -428,19 +454,21 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 ### Crowd Forecasting — `/crowd`
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/crowd/stations` | List supported stations |
-| POST | `/crowd/predict` | Forecast crowd level + AI advisory |
-| GET | `/crowd/heatmap/{station_code}` | 24-hour crowd heatmap |
-| GET | `/crowd/ntes/delays` | Live running status for major trains (NTES) |
+
+| Method | Endpoint                        | Description                                 |
+| ------ | ------------------------------- | ------------------------------------------- |
+| GET    | `/crowd/stations`               | List supported stations                     |
+| POST   | `/crowd/predict`                | Forecast crowd level + AI advisory          |
+| GET    | `/crowd/heatmap/{station_code}` | 24-hour crowd heatmap                       |
+| GET    | `/crowd/ntes/delays`            | Live running status for major trains (NTES) |
 
 ### Track Safety — `/safety`
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/safety/analyze` | Upload track image → defect classification + AI alert |
-| GET | `/safety/recent` | Last ≤10 analyses (in-memory) |
-| GET | `/safety/status` | CLIP model load status + supported defect classes |
+
+| Method | Endpoint          | Description                                           |
+| ------ | ----------------- | ----------------------------------------------------- |
+| POST   | `/safety/analyze` | Upload track image → defect classification + AI alert |
+| GET    | `/safety/recent`  | Last ≤10 analyses (in-memory)                         |
+| GET    | `/safety/status`  | CLIP model load status + supported defect classes     |
 
 > ⚠️ The first `/safety/analyze` call may take 30–90 seconds while CLIP loads (~600 MB). Subsequent calls are fast.
 
@@ -466,18 +494,18 @@ uvicorn app.main:app --reload --port 8000
 
 ## 📊 Performance Metrics
 
-| Module | Metric | Value |
-|---|---|---|
-| Delay Predictor | ML Accuracy | 94.2% |
-| Delay Predictor | Training Dataset | 50,000 journeys |
-| Track Safety | Defect Recall | 99.1% |
-| Track Safety | Defect Classes | 6 categories |
-| Station Commander | Stations Monitored | 5+ major stations |
-| Station Commander | Forecast Horizon | Up to 24 hours |
-| Train Checkup | Sensors Evaluated | 13 measurements |
-| Train Checkup | Subsystems | 5 (Engine, Brake, Wheel, Electrical, Safety) |
-| Platform | Page Load | < 1s (no build step) |
-| Platform | Monitoring | 24/7 |
+| Module            | Metric             | Value                                        |
+| ----------------- | ------------------ | -------------------------------------------- |
+| Delay Predictor   | ML Accuracy        | 94.2%                                        |
+| Delay Predictor   | Training Dataset   | 50,000 journeys                              |
+| Track Safety      | Defect Recall      | 99.1%                                        |
+| Track Safety      | Defect Classes     | 6 categories                                 |
+| Station Commander | Stations Monitored | 5+ major stations                            |
+| Station Commander | Forecast Horizon   | Up to 24 hours                               |
+| Train Checkup     | Sensors Evaluated  | 13 measurements                              |
+| Train Checkup     | Subsystems         | 5 (Engine, Brake, Wheel, Electrical, Safety) |
+| Platform          | Page Load          | < 1s (no build step)                         |
+| Platform          | Monitoring         | 24/7                                         |
 
 ---
 
@@ -494,15 +522,18 @@ uvicorn app.main:app --reload --port 8000
 In line with FAR AWAY 2026's builder-first philosophy ("the goal is to build something meaningful, not to write every line yourself"), this project was built using a combination of original engineering, open-source libraries, and AI-assisted development. Full transparency below:
 
 **AI tools used during development:**
+
 - **Claude** and **ChatGPT** — used for code review, debugging assistance, documentation drafting, and architectural discussion.
 - **GitHub Copilot** — used for boilerplate and repetitive code completion in frontend and backend files.
 
 **AI models powering the live product (not just dev tooling):**
+
 - **XGBoost** — custom-trained delay prediction model on a 50,000-record synthetic journey dataset.
 - **CLIP (OpenAI)** — pretrained vision-language model fine-tuned/prompted for track defect classification.
 - **Groq API (Llama 3.1 8B Instant)** — powers the RailMind Agent's advisories, reasoning, and alerts across all modules.
 
 **Open-source frameworks & libraries:**
+
 - FastAPI, Uvicorn, Pydantic, scikit-learn, joblib (backend)
 - Chart.js, Font Awesome, Google Fonts — Inter (frontend)
 
@@ -525,11 +556,11 @@ In line with FAR AWAY 2026's builder-first philosophy ("the goal is to build som
 
 ## 👥 Team — Rusty Coders
 
-| # | Name | Role | Responsibility |
-|---|---|---|---|
-| 01 | **Jay Bhadoria** | Frontend Developer | UI/UX design, dashboard interface & platform experience |
-| 02 | **Harsh Yadav** | Backend Developer | API architecture, data pipelines, AI & ML model integration |
-| 03 | **Atharva Dhamorikar** | Presentation Lead | Pitch decks, demo video production & hackathon storytelling |
+| #   | Name                   | Role               | Responsibility                                              |
+| --- | ---------------------- | ------------------ | ----------------------------------------------------------- |
+| 01  | **Jay Bhadoria**       | Frontend Developer | UI/UX design, dashboard interface & platform experience     |
+| 02  | **Harsh Yadav**        | Backend Developer  | API architecture, data pipelines, AI & ML model integration |
+| 03  | **Atharva Dhamorikar** | Presentation Lead  | Pitch decks, demo video production & hackathon storytelling |
 
 📍 Based in **Indore, India 🇮🇳**
 📧 already.rusted@gmail.com
@@ -545,18 +576,19 @@ In line with FAR AWAY 2026's builder-first philosophy ("the goal is to build som
 **Round:** 1 Submission
 
 ### Hardware Disclosure
+
 RailMind AI is a **software-only platform** (web frontend + FastAPI backend + ML/AI models). No physical hardware or PCB/CAD components are part of this submission — Round 1 hardware rules are therefore not applicable.
 
 ### Why RailMind AI wins on FAR AWAY's judging criteria:
 
-| Criterion | How We Address It |
-|---|---|
+| Criterion                       | How We Address It                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
 | 🧠 Innovation & Technical Depth | Multi-model AI stack: XGBoost + CLIP + LLM agent (Groq/Llama) + AI-driven rule-based engine |
-| ⚙️ Engineering Quality | FastAPI backend with graceful fallbacks, clean semantic HTML, modular CSS design system |
-| 🌍 Real-World Impact | Targets 23M daily passengers — delays, crowds, safety, maintenance |
-| 📈 Scalability | Decoupled frontend + backend across separate repos = independently deployable and scalable |
-| 🎨 Design & UX | Glassmorphism, animated reveals, accessible, mobile-first |
-| ✅ Execution & Completeness | 5 pages, 4 AI-powered modules, full backend API, all functional and interconnected |
+| ⚙️ Engineering Quality          | FastAPI backend with graceful fallbacks, clean semantic HTML, modular CSS design system     |
+| 🌍 Real-World Impact            | Targets 23M daily passengers — delays, crowds, safety, maintenance                          |
+| 📈 Scalability                  | Decoupled frontend + backend across separate repos = independently deployable and scalable  |
+| 🎨 Design & UX                  | Glassmorphism, animated reveals, accessible, mobile-first                                   |
+| ✅ Execution & Completeness     | 5 pages, 4 AI-powered modules, full backend API, all functional and interconnected          |
 
 ---
 
